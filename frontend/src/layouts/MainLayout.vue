@@ -24,9 +24,7 @@
             <q-icon name="home" />
           </q-item-section>
 
-          <q-item-section>
-            Home
-          </q-item-section>
+          <q-item-section> Home </q-item-section>
         </q-item>
 
         <q-item to="/users" exact clickable v-ripple>
@@ -34,9 +32,7 @@
             <q-icon name="people" />
           </q-item-section>
 
-          <q-item-section>
-            Users
-          </q-item-section>
+          <q-item-section> Users </q-item-section>
         </q-item>
 
         <q-item v-show="isAdmin" to="/profiles" exact clickable v-ripple>
@@ -44,9 +40,7 @@
             <q-icon name="add" />
           </q-item-section>
 
-          <q-item-section>
-            Profiles
-          </q-item-section>
+          <q-item-section> Profiles </q-item-section>
         </q-item>
       </q-list>
     </q-drawer>
@@ -58,8 +52,9 @@
 </template>
 
 <script>
-import { defineComponent } from "vue";
+import { defineComponent, onBeforeMount } from "vue";
 import { useAuthStore } from "src/stores/auth";
+import { useRouter } from "vue-router";
 
 export default defineComponent({
   name: "MainLayout",
@@ -67,6 +62,20 @@ export default defineComponent({
   data() {
     return {
       leftDrawerOpen: false,
+    };
+  },
+
+  setup() {
+    const router = useRouter()
+
+    onBeforeMount(() => {
+      if (!useAuthStore().isAuthenticated) {
+        router.push("/login");
+      }
+    });
+
+    return {
+      useAuthStore,
     };
   },
 
