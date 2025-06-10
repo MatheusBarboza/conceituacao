@@ -35,6 +35,12 @@ class ProfileController extends Controller
         return response()->json($profile);
     }
 
+    public function show(string $id)
+    {
+        $profile = $this->repository->find($id);
+        return response()->json($profile);
+    }
+
     /**
      * Update the specified resource in storage.
      */
