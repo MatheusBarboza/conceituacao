@@ -7,14 +7,15 @@ use App\DataTransferObjects\User\UserDataUpdate;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
+use App\Repositories\ProfileUserRepository;
 use App\Repositories\UserRepository;
 
 class UserController extends Controller
 {
     public function __construct(
-        protected UserRepository $repository
-    )
-    {}
+        protected UserRepository $repository,
+        protected ProfileUserRepository $profileUserRepository
+    ) {}
     /**
      * Display a listing of the resource.
      */
@@ -29,8 +30,22 @@ class UserController extends Controller
      */
     public function store(StoreUserRequest $request)
     {
-        $data = new UserData($request->validated());
+        $validated = $request->validated();
+        $data = new UserData($validated);
         $user = $this->repository->create($data->toArray());
+
+        if ($validated['profiles_id']) {
+            $user = $this->profileUserRepository->sync(
+                $user->getKey(),
+                $validated['profiles_id']
+            );
+        }
+        return response()->json($user);
+    }
+
+    public function show(string $id)
+    {
+        $user = $this->repository->find($id);
         return response()->json($user);
     }
 
@@ -39,8 +54,15 @@ class UserController extends Controller
      */
     public function update(UpdateUserRequest $request, string $id)
     {
-        $data = new UserDataUpdate($request->validated());
+        $validated = $request->validated();
+        $data = new UserDataUpdate($validated);
         $user = $this->repository->update($id, $data->toArray());
+        if (isset($validated['profiles_id'])) {
+            $user = $this->profileUserRepository->sync(
+                $id,
+                $validated['profiles_id']
+            );
+        }
         return response()->json($user);
     }
 
