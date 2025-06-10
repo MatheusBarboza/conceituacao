@@ -12,6 +12,7 @@ class AuthController extends Controller
     public function login(AuthRequest $data)
     {
         $user = $this->authValidation($data->only('email', 'password'));
+        $user->load('profiles');
         $token = $user->createToken('auth_token')->accessToken;
 
         return [
